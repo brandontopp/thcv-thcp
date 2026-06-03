@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Find Your Mood Blend</title>
+<style>
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+#mood-widget {
+  background-color: #1B3A2F;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 20px;
+}
+
+.widget-card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 36px 32px;
+  max-width: 480px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+}
+
+.widget-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #1B3A2F;
+  opacity: 0.5;
+  margin: 0 0 12px;
+}
+
+.widget-headline {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1B3A2F;
+  margin: 0 0 8px;
+  line-height: 1.3;
+}
+
+.widget-sub {
+  font-size: 14px;
+  color: #5a7060;
+  margin: 0 0 28px;
+  line-height: 1.6;
+}
+
+/* Step 1: choice buttons */
+.choice-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 4px;
+}
+
+.choice-btn {
+  background: #f4f9f5;
+  border: 2px solid #d4e6d8;
+  border-radius: 14px;
+  padding: 22px 14px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  text-align: center;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.choice-btn:hover {
+  border-color: #1B3A2F;
+  background: #eaf3ec;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(27,58,47,0.12);
+}
+
+.choice-btn:active {
+  transform: translateY(0px);
+}
+
+.choice-icon {
+  font-size: 32px;
+  display: block;
+  margin-bottom: 8px;
+  line-height: 1;
+}
+
+.choice-label {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1B3A2F;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.choice-desc {
+  font-size: 12px;
+  color: #7a9680;
+  display: block;
+  line-height: 1.4;
+}
+
+/* Step 2: result */
+.result-panel {
+  display: none;
+}
+
+.result-badge {
+  display: inline-block;
+  border-radius: 99px;
+  padding: 5px 16px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+}
+
+.result-badge.focus {
+  background: #e8f5e2;
+  color: #2d6b3a;
+}
+
+.result-badge.unwind {
+  background: #e8e2f5;
+  color: #4a3a7a;
+}
+
+.result-product-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1B3A2F;
+  margin: 0 0 10px;
+  line-height: 1.3;
+}
+
+.result-description {
+  font-size: 14px;
+  color: #5a7060;
+  line-height: 1.65;
+  margin: 0 0 24px;
+}
+
+.result-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.result-tag {
+  background: #f4f9f5;
+  border: 1px solid #d4e6d8;
+  border-radius: 99px;
+  padding: 4px 12px;
+  font-size: 12px;
+  color: #1B3A2F;
+  font-weight: 500;
+}
+
+.result-cta {
+  display: block;
+  background: #1B3A2F;
+  color: #ffffff;
+  text-decoration: none;
+  border-radius: 12px;
+  padding: 15px 24px;
+  font-size: 15px;
+  font-weight: 700;
+  transition: all 0.18s ease;
+  margin-bottom: 14px;
+  cursor: pointer;
+  border: none;
+  width: 100%;
+}
+
+.result-cta:hover {
+  background: #254f40;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(27,58,47,0.22);
+}
+
+.restart-btn {
+  background: none;
+  border: none;
+  color: #1B3A2F;
+  opacity: 0.45;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 4px 0;
+  font-family: inherit;
+  transition: opacity 0.15s;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.restart-btn:hover {
+  opacity: 0.8;
+}
+
+/* Divider dot */
+.dot-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 22px 0;
+  color: #c8d8cc;
+  font-size: 12px;
+}
+.dot-divider::before,
+.dot-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #e0eae2;
+}
+
+/* Fade transition */
+.fade-in {
+  animation: fadeUp 0.28s ease forwards;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Mobile tightening */
+@media (max-width: 380px) {
+  .widget-card {
+    padding: 28px 20px;
+  }
+  .widget-headline {
+    font-size: 19px;
+  }
+  .choice-btn {
+    padding: 18px 10px;
+  }
+  .choice-icon {
+    font-size: 26px;
+  }
+}
+</style>
+</head>
+<body>
+
+<div id="mood-widget">
+  <div class="widget-card">
+
+    <!-- STEP 1 -->
+    <div id="step-1">
+      <p class="widget-eyebrow">Find your blend</p>
+      <h2 class="widget-headline">What are you going for today?</h2>
+      <p class="widget-sub">Pick the vibe. We'll point you to the right Mood blend.</p>
+
+      <div class="choice-grid">
+        <button class="choice-btn" onclick="showResult('focus')" aria-label="Daytime focus and energy">
+          <span class="choice-icon">&#9728;&#65039;</span>
+          <span class="choice-label">Focused</span>
+          <span class="choice-desc">Clear head, daytime energy, stay in the zone</span>
+        </button>
+        <button class="choice-btn" onclick="showResult('unwind')" aria-label="Deep relaxation and rest">
+          <span class="choice-icon">&#127769;</span>
+          <span class="choice-label">Unwound</span>
+          <span class="choice-desc">Deep relaxation, full-body ease, rest</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div id="step-2" class="result-panel">
+      <div id="result-content"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+var results = {
+  focus: {
+    badge: 'focus',
+    badgeText: 'Daytime blend',
+    name: 'Morning Delta-9 THC Gummies',
+    description: 'Built for daytime. The Morning Gummies pair THCV with Delta-9 for a clear-headed, balanced lift without the weight. Rated 4.17/5 from over 4,700 reviews.',
+    tags: ['THCV blend', 'Daytime', 'Delta-9 THC', '20-count from $29'],
+    url: 'https://mood.com/product/morning-delta-9-thc-gummies',
+    ctaText: 'Shop Morning Gummies'
+  },
+  unwind: {
+    badge: 'unwind',
+    badgeText: 'Evening blend',
+    name: 'Hero Dose Rapid Onset Gummies',
+    description: 'Built for the deeper end. Hero Dose pairs THCP with Delta-9 for a strong, full-body experience with rapid onset. Rated 4.48/5 from over 7,500 reviews. Best for experienced users.',
+    tags: ['THCP blend', 'Rapid onset', 'Delta-9 THC', '10-count for $39'],
+    url: 'https://mood.com/product/hero-dose-rapid-onset-thc-gummies',
+    ctaText: 'Shop Hero Dose'
+  }
+};
+
+function showResult(type) {
+  var data = results[type];
+  var step1 = document.getElementById('step-1');
+  var step2 = document.getElementById('step-2');
+  var content = document.getElementById('result-content');
+
+  var tagsHTML = data.tags.map(function(tag) {
+    return '<span class="result-tag">' + tag + '</span>';
+  }).join('');
+
+  content.innerHTML =
+    '<span class="result-badge ' + data.badge + '">' + data.badgeText + '</span>' +
+    '<p class="result-product-name">' + data.name + '</p>' +
+    '<p class="result-description">' + data.description + '</p>' +
+    '<div class="result-tags">' + tagsHTML + '</div>' +
+    '<a href="' + data.url + '" target="_blank" rel="noopener" class="result-cta">' + data.ctaText + '</a>' +
+    '<button class="restart-btn" onclick="restart()">Start over</button>';
+
+  step1.style.display = 'none';
+  step2.style.display = 'block';
+  step2.classList.add('fade-in');
+
+  // postMessage height to parent Shopify page
+  try {
+    window.parent.postMessage({ type: 'iframeResize', height: document.getElementById('mood-widget').scrollHeight }, '*');
+  } catch(e) {}
+}
+
+function restart() {
+  var step1 = document.getElementById('step-1');
+  var step2 = document.getElementById('step-2');
+
+  step2.style.display = 'none';
+  step2.classList.remove('fade-in');
+  step1.style.display = 'block';
+  step1.classList.add('fade-in');
+
+  setTimeout(function() { step1.classList.remove('fade-in'); }, 400);
+}
+</script>
+
+</body>
+</html>
